@@ -1,7 +1,7 @@
 #ifndef CHALLENGE_1_H
 #define CHALLENGE_1_H
 
-#include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {

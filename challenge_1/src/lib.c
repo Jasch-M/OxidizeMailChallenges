@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 void rotate_left_ptrs(void **array, const size_t size)
 {
