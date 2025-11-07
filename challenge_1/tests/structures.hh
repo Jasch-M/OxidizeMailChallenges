@@ -1,6 +1,11 @@
 #ifndef CHALLENGES_1_TESTS_STRUCTURES_HH
 #define CHALLENGES_1_TESTS_STRUCTURES_HH
 
+#include <ostream>
+#include <string>
+#include <cstring>
+#include <cstdint>
+
 struct Point
 {
     int x;
