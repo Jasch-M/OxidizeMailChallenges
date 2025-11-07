@@ -29,6 +29,10 @@ struct RgbPixel
 {
     uint8_t red, green, blue;
 
+    RgbPixel()
+        : red(0), green(0), blue(0)
+    { }
+
     RgbPixel(const int red, const int green, const int blue)
         : red(red), green(green), blue(blue)
     { }

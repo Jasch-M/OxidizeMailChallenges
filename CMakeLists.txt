@@ -27,6 +27,17 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+# Add Google Benchmark
+FetchContent_Declare(
+        googlebenchmark
+        URL https://github.com/google/benchmark/archive/refs/tags/v1.8.3.zip
+)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googlebenchmark)
+
+enable_testing()
+include(GoogleTest)
+
 add_library(challenge_1 SHARED challenge_1/src/lib.c
         challenge_1/src/lib.h)
 
@@ -37,5 +48,11 @@ add_executable(challenge_1_tests challenge_1/tests/pointer_array_tests.cc
 target_link_libraries(challenge_1_tests challenge_1)
 include_directories(.)
 target_link_libraries(challenge_1_tests GTest::gtest_main)
+
+gtest_discover_tests(challenge_1_tests)
+
+# Add benchmark executable
+add_executable(challenge_1_benchmarks challenge_1/benchmarks/benchmarks.cc)
+target_link_libraries(challenge_1_benchmarks challenge_1 benchmark::benchmark_main)
 
 
