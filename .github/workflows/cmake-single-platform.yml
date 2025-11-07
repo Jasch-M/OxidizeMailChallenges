@@ -35,11 +35,36 @@ jobs:
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure --output-junit test_results.xml
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: ${{github.workspace}}/build/test_results.xml
+        check_name: Test Results
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ github.sha }}
+        path: ${{github.workspace}}/build/test_results.xml
+        retention-days: 90
 
     - name: Run Benchmarks
+      continue-on-error: true
       working-directory: ${{github.workspace}}/build
       run: ./challenge_1_benchmarks --benchmark_format=json --benchmark_out=benchmark_results.json
+
+    - name: Publish Benchmark Results
+      if: always()
+      run: |
+        echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Benchmark | Time | CPU | Iterations |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----------|------|-----|------------|" >> $GITHUB_STEP_SUMMARY
+        jq -r '.benchmarks[] | "| \(.name) | \(.real_time) \(.time_unit) | \(.cpu_time) \(.time_unit) | \(.iterations) |"' ${{github.workspace}}/build/benchmark_results.json >> $GITHUB_STEP_SUMMARY
 
     - name: Upload Benchmark Results
       uses: actions/upload-artifact@v4
