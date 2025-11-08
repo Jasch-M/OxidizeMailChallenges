@@ -19,6 +19,11 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
     steps:
     - uses: actions/checkout@v4
 
@@ -57,14 +62,23 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./challenge_1_benchmarks --benchmark_format=json --benchmark_out=benchmark_results.json
 
+    - name: Debug tree
+      run: tree -a
+
     - name: Publish Benchmark Results
       if: always()
       run: |
-        echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "| Benchmark | Time | CPU | Iterations |" >> $GITHUB_STEP_SUMMARY
-        echo "|-----------|------|-----|------------|" >> $GITHUB_STEP_SUMMARY
-        jq -r '.benchmarks[] | "| \(.name) | \(.real_time) \(.time_unit) | \(.cpu_time) \(.time_unit) | \(.iterations) |"' ${{github.workspace}}/build/benchmark_results.json >> $GITHUB_STEP_SUMMARY
+        if [ -f "${{github.workspace}}/build/benchmark_results.json" ]; then
+          echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Benchmark | Time | CPU | Iterations |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|------|-----|------------|" >> $GITHUB_STEP_SUMMARY
+          jq -r '.benchmarks[] | "| \(.name) | \(.real_time) \(.time_unit) | \(.cpu_time) \(.time_unit) | \(.iterations) |"' ${{github.workspace}}/build/benchmark_results.json >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ Benchmark results file not found. Benchmarks may have failed to run." >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: Upload Benchmark Results
       uses: actions/upload-artifact@v4
